@@ -43,3 +43,15 @@ variable "sr_uuid" {
   description = "The UUID of the storage repository for the VM disk"
   type        = string
 }
+
+variable "add_additional_disk" {
+  description = "Flag to indicate if an additional disk should be created (true/false)"
+  type        = bool
+  default     = false
+}
+
+variable "additional_disk_size" {
+  description = "Size of the additional disk in bytes"
+  type        = number
+  default     = 10 * 1024 * 1024 * 1024  # 10GB as default size
+}
