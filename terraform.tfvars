@@ -1,7 +1,7 @@
-url          = "https://135.181.208.18"
+host          = "https://135.181.208.18"
 username     = "${xen_username}"
 password     = "${xen_password}"
-template_name = "${template_name}"
+template_name = "${vm_template}"
 new_vm_name  = "${new_vm_name}"
 cpus         = ${cpus}
 memory       = ${memory_in_bytes}
