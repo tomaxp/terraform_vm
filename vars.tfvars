@@ -1,6 +1,6 @@
-host                = "https://135.181.208.18"
-username            = "${xen_username}"
-password            = "${xen_password}"
+host                = var.host
+username            = var.username
+password            = var.password
 new_vm_name         = "twoja-nazwa-vm"
 template_name       = "Ubuntu 20.04 Minimal ONITO"
 memory              = 2048  # w MB (2GB)
