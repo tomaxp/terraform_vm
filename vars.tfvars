@@ -1,7 +1,4 @@
-host                = var.host
-username            = var.username
-password            = var.password
-new_vm_name         = "twoja-nazwa-vm"
+new_vm_name         = "Tpa-GithubAction"
 template_name       = "Ubuntu 20.04 Minimal ONITO"
 memory              = 2048  # w MB (2GB)
 cpus                = 2
