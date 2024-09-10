@@ -1,4 +1,4 @@
-name: Terraform Deployment
+name: Terraform Deployment on Self-Hosted Runner
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repozytorium
