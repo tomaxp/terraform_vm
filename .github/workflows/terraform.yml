@@ -44,6 +44,10 @@ jobs:
           echo "cpus=$(terraform output -raw cpus)" >> vm_outputs.txt
           echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
 
+      - name: Display contents of vm_outputs.txt
+        run: cat vm_outputs.txt
+
+
       - name: Upload VM Outputs as Artifact
         uses: actions/upload-artifact@v2
         with:
