@@ -37,12 +37,18 @@ jobs:
       - name: Capture Terraform Outputs
         id: outputs
         run: |
-          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> $GITHUB_ENV
-          echo "new_vm_name=$(terraform output -raw new_vm_name)" >> $GITHUB_ENV
-          echo "template_name=$(terraform output -raw template_name)" >> $GITHUB_ENV
-          echo "memory=$(terraform output -raw memory)" >> $GITHUB_ENV
-          echo "cpus=$(terraform output -raw cpus)" >> $GITHUB_ENV
-          echo "disk_size=$(terraform output -raw disk_size)" >> $GITHUB_ENV
+          vm_mac_address=$(terraform output -raw vm_mac_address | tr -d '\r\n')
+          echo "vm_mac_address=$vm_mac_address" >> $GITHUB_ENV
+          new_vm_name=$(terraform output -raw new_vm_name | tr -d '\r\n')
+          echo "new_vm_name=$new_vm_name" >> $GITHUB_ENV
+          template_name=$(terraform output -raw template_name | tr -d '\r\n')
+          echo "template_name=$template_name" >> $GITHUB_ENV
+          memory=$(terraform output -raw memory | tr -d '\r\n')
+          echo "memory=$memory" >> $GITHUB_ENV
+          cpus=$(terraform output -raw cpus | tr -d '\r\n')
+          echo "cpus=$cpus" >> $GITHUB_ENV
+          disk_size=$(terraform output -raw disk_size | tr -d '\r\n')
+          echo "disk_size=$disk_size" >> $GITHUB_ENV
 
   find_unused_ip:
     runs-on: self-hosted
