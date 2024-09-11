@@ -34,6 +34,16 @@ jobs:
           -auto-approve \
           -lock=false
 
+      - name: Capture Terraform Outputs
+        id: outputs
+        run: |
+          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> $GITHUB_ENV
+          echo "new_vm_name=$(terraform output -raw new_vm_name)" >> $GITHUB_ENV
+          echo "template_name=$(terraform output -raw template_name)" >> $GITHUB_ENV
+          echo "memory=$(terraform output -raw memory)" >> $GITHUB_ENV
+          echo "cpus=$(terraform output -raw cpus)" >> $GITHUB_ENV
+          echo "disk_size=$(terraform output -raw disk_size)" >> $GITHUB_ENV
+
   find_unused_ip:
     runs-on: self-hosted
     needs: deploy
@@ -66,3 +76,40 @@ jobs:
           AVAILABLE_IP=$(head -n 1 unused_ip.txt)
           echo "First available IP: $AVAILABLE_IP"
           echo "::set-output name=ip::$AVAILABLE_IP"
+
+  register_in_pfsense:
+    runs-on: self-hosted
+    needs: find_unused_ip
+    steps:
+      - name: Checkout repozytorium
+        uses: actions/checkout@v2
+
+      - name: Register IP in pfSense
+        run: |
+          python3 ./scripts/register_in_pfsense.py \
+          ${{ secrets.PFSENSE_USERNAME }} \
+          ${{ secrets.PFSENSE_PASSWORD }} \
+          ${{ env.vm_mac_address }} \
+          ${{ steps.parse_ip.outputs.ip }} \
+          ${{ env.new_vm_name }} \
+          ${{ env.template_name }} \
+          ${{ env.cpus }} \
+          ${{ env.memory }} \
+          ${{ env.disk_size }}
+
+  summary:
+    runs-on: self-hosted
+    needs: register_in_pfsense
+    steps:
+      - name: Checkout repozytorium
+        uses: actions/checkout@v2
+
+      - name: Display VM summary
+        run: |
+          echo "VM Details:"
+          echo "Hostname: ${{ env.new_vm_name }}"
+          echo "IP Address: ${{ steps.parse_ip.outputs.ip }}"
+          echo "MAC Address: ${{ env.vm_mac_address }}"
+          echo "CPU(s): ${{ env.cpus }}"
+          echo "Memory: ${{ env.memory }} MB"
+          echo "Disk Size: ${{ env.disk_size }} GB"
