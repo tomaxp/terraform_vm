@@ -1,4 +1,4 @@
-name: Terraform Deployment on Self-Hosted Runner
+name: Terraform and pfSense Automation
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
-
     steps:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
@@ -32,24 +31,25 @@ jobs:
           -auto-approve \
           -lock=false
 
-      - name: Save Terraform State
-        uses: actions/upload-artifact@v3
-        with:
-          name: terraform-state
-          path: ./terraform.tfstate
+  find_unused_ip:
+    runs-on: self-hosted
+    needs: deploy
+    steps:
+      - name: Checkout repozytorium
+        uses: actions/checkout@v2
 
-      - name: Terraform Plan
+      - name: Run get_unused_ip.py to find first available IP
+        id: get_ip
         run: |
-          terraform plan \
-          -var=host="${{ secrets.XEN_URL }}" \
-          -var=username="${{ secrets.XEN_USERNAME }}" \
-          -var=password='${{ secrets.XEN_PASSWORD }}' \
-          -var-file="vars.tfvars" \
-          -lock=false \
-          -out=tfplan
+          python3 ./scripts/get_unused_ip.py \
+          https://192.168.101.1/index.php \
+          https://192.168.101.1/services_dhcp.php \
+          ${{ secrets.PFSENSE_USERNAME }} \
+          ${{ secrets.PFSENSE_PASSWORD }} > unused_ip.txt
 
-      - name: Save Terraform Plan Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: terraform-plan
-          path: ./tfplan
+      - name: Parse the first available IP
+        id: parse_ip
+        run: |
+          AVAILABLE_IP=$(head -n 1 unused_ip.txt)
+          echo "First available IP: $AVAILABLE_IP"
+          echo "::set-output name=ip::$AVAILABLE_IP"
