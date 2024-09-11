@@ -96,6 +96,16 @@ jobs:
           source venv/bin/activate
           pip install requests beautifulsoup4 ipaddress  
 
+      - name: Debug environment variables
+        run: |
+          echo "MAC Address: ${{ env.vm_mac_address }}"
+          echo "IP Address: ${{ steps.parse_ip.outputs.ip }}"
+          echo "VM Name: ${{ env.new_vm_name }}"
+          echo "Template Name: ${{ env.template_name }}"
+          echo "CPUs: ${{ env.cpus }}"
+          echo "Memory: ${{ env.memory }}"
+          echo "Disk Size: ${{ env.disk_size }}"
+
       - name: Register IP in pfSense
         run: |
           source venv/bin/activate
