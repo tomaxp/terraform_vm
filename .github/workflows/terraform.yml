@@ -45,7 +45,10 @@ jobs:
           echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
 
       - name: Display contents of vm_outputs.txt
-        run: cat vm_outputs.txt
+        run: |
+          echo "Displaying contents of vm_outputs.txt:"
+          cat vm_outputs.txt
+
 
 
       - name: Upload VM Outputs as Artifact
