@@ -38,21 +38,22 @@ jobs:
     runs-on: self-hosted
     needs: deploy
     steps:
-      - name: Setup Python virtual environment
-        run: |
-         python3 -m venv venv
-          source venv/bin/activate
-          pip install requests beautifulsoup4 ipaddress  
-            
       - name: Checkout repozytorium
         uses: actions/checkout@v2
 
       - name: List files in repository after checkout
         run: ls -la
 
+      - name: Setup Python virtual environment and install dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install requests beautifulsoup4 ipaddress  
+
       - name: Run get_unused_ip.py to find first available IP
         id: get_ip
         run: |
+          source venv/bin/activate
           python3 ./.scripts/get_unused_ip.py \
           https://192.168.101.1/index.php \
           https://192.168.101.1/services_dhcp.php \
