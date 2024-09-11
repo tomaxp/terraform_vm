@@ -92,7 +92,7 @@ jobs:
 
       - name: Register IP in pfSense
         run: |
-          python3 ./scripts/register_in_pfsense.py \
+          python3 ./.scripts/register_in_pfsense.py \
           ${{ secrets.PFSENSE_USERNAME }} \
           ${{ secrets.PFSENSE_PASSWORD }} \
           ${{ env.vm_mac_address }} \
