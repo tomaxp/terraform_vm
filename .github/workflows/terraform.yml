@@ -90,6 +90,12 @@ jobs:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
 
+      - name: Setup Python virtual environment and install dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install requests beautifulsoup4 ipaddress  
+
       - name: Register IP in pfSense
         run: |
           python3 ./.scripts/register_in_pfsense.py \
