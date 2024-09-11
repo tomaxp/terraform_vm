@@ -81,18 +81,28 @@ jobs:
           ${{ secrets.PFSENSE_USERNAME }} \
           ${{ secrets.PFSENSE_PASSWORD }} > unused_ip.txt
 
-      - name: Parse the first available IP
+
+      - name: Parse the first available IP and save to environment
         id: parse_ip
         run: |
           AVAILABLE_IP=$(head -n 1 unused_ip.txt)
           echo "First available IP: $AVAILABLE_IP"
-          echo "::set-output name=ip::$AVAILABLE_IP"
+          echo "ip=$AVAILABLE_IP" >> $GITHUB_ENV
 
-      - name: Upload IP as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: unused-ip
-          path: unused_ip.txt
+#      - name: Parse the first available IP
+#        id: parse_ip
+#        run: |
+#          AVAILABLE_IP=$(head -n 1 unused_ip.txt)
+#          echo "First available IP: $AVAILABLE_IP"
+#          echo "::set-output name=ip::$AVAILABLE_IP"
+
+#      - name: Upload IP as Artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: unused-ip
+#          path: unused_ip.txt
+
+
 
   register_in_pfsense:
     runs-on: self-hosted
@@ -101,11 +111,11 @@ jobs:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
 
-      - name: Download VM Outputs and IP Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vm-outputs
-        continue-on-error: true
+#      - name: Download VM Outputs and IP Artifacts
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: vm-outputs
+#        continue-on-error: true
         
       - name: Download Unused IP Artifact
         uses: actions/download-artifact@v2
@@ -128,17 +138,17 @@ jobs:
           echo "Displaying contents of unused_ip.txt:"
           cat unused_ip.txt
 
-      - name: Load VM Outputs from File
-        run: |
-          set -a  # Automatyczne eksportowanie zmiennych
-          source vm_outputs.txt
-          set +a  # Przestań eksportować zmienne
-          echo "MAC Address: $vm_mac_address"
-          echo "VM Name: $new_vm_name"
-          echo "Template Name: $template_name"
-          echo "Memory: $memory MB"
-          echo "CPUs: $cpus"
-          echo "Disk Size: $disk_size GB"
+#      - name: Load VM Outputs from File
+#        run: |
+#          set -a  # Automatyczne eksportowanie zmiennych
+#          source vm_outputs.txt
+#          set +a  # Przestań eksportować zmienne
+#          echo "MAC Address: $vm_mac_address"
+#          echo "VM Name: $new_vm_name"
+#          echo "Template Name: $template_name"
+#          echo "Memory: $memory MB"
+#          echo "CPUs: $cpus"
+#          echo "Disk Size: $disk_size GB"
 
       - name: Register IP in pfSense
         run: |
