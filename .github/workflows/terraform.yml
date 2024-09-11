@@ -36,12 +36,13 @@ jobs:
 
       - name: Capture Terraform Outputs and Save to Environment Files
         run: |
-          echo "cpus=$(terraform output -raw cpus)" >> $GITHUB_ENV
-          echo "disk_size=$(terraform output -raw disk_size)" >> $GITHUB_ENV
-          echo "memory=$(terraform output -raw memory)" >> $GITHUB_ENV
-          echo "new_vm_name=$(terraform output -raw new_vm_name)" >> $GITHUB_ENV
-          echo "template_name=$(terraform output -raw template_name)" >> $GITHUB_ENV
-          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> $GITHUB_ENV
+          echo "cpus=$(terraform output -raw cpus | grep -v '::debug::')" >> $GITHUB_ENV
+          echo "disk_size=$(terraform output -raw disk_size | grep -v '::debug::')" >> $GITHUB_ENV
+          echo "memory=$(terraform output -raw memory | grep -v '::debug::')" >> $GITHUB_ENV
+          echo "new_vm_name=$(terraform output -raw new_vm_name | grep -v '::debug::')" >> $GITHUB_ENV
+          echo "template_name=$(terraform output -raw template_name | grep -v '::debug::')" >> $GITHUB_ENV
+          echo "vm_mac_address=$(terraform output -raw vm_mac_address | grep -v '::debug::')" >> $GITHUB_ENV
+
 
       - name: Display contents of vm_outputs.txt
         run: |
