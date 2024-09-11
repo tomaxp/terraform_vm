@@ -47,6 +47,7 @@ jobs:
           echo "cpus=$(terraform output -raw cpus)" >> vm_outputs.txt
           echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
 
+
       - name: Upload Terraform Outputs as Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -101,7 +102,9 @@ jobs:
 
       - name: Load VM Outputs from File
         run: |
+          set -a  # automatycznie eksportuj zmienne
           source vm_outputs.txt
+          set +a  # przestań eksportować zmienne
           echo "MAC Address: $vm_mac_address"
           echo "VM Name: $new_vm_name"
           echo "Template Name: $template_name"
