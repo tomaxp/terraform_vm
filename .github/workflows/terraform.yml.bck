@@ -43,15 +43,17 @@ jobs:
           echo "template_name=$(terraform output -raw template_name | grep -v '::debug::')" >> $GITHUB_ENV
           echo "vm_mac_address=$(terraform output -raw vm_mac_address | grep -v '::debug::')" >> $GITHUB_ENV
 
-      - name: Display Terraform Outputs from Environment
-        run: |
-          echo "Displaying Terraform outputs:"
-          echo "CPUs: $cpus"
-          echo "Disk Size: $disk_size"
-          echo "Memory: $memory MB"
-          echo "VM Name: $new_vm_name"
-          echo "Template Name: $template_name"
-          echo "MAC Address: $vm_mac_address"
+
+#      - name: Display contents of vm_outputs.txt
+#        run: |
+#          echo "Displaying contents of vm_outputs.txt:"
+#          cat vm_outputs.txt
+
+#      - name: Upload VM Outputs as Artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: vm-outputs
+#          path: vm_outputs.txt
 
   find_unused_ip:
     runs-on: self-hosted
@@ -79,6 +81,7 @@ jobs:
           ${{ secrets.PFSENSE_USERNAME }} \
           ${{ secrets.PFSENSE_PASSWORD }} > unused_ip.txt
 
+
       - name: Parse the first available IP and save to environment
         id: parse_ip
         run: |
@@ -86,12 +89,39 @@ jobs:
           echo "First available IP: $AVAILABLE_IP"
           echo "ip=$AVAILABLE_IP" >> $GITHUB_ENV
 
+#      - name: Parse the first available IP
+#        id: parse_ip
+#        run: |
+#          AVAILABLE_IP=$(head -n 1 unused_ip.txt)
+#          echo "First available IP: $AVAILABLE_IP"
+#          echo "::set-output name=ip::$AVAILABLE_IP"
+
+#      - name: Upload IP as Artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: unused-ip
+#          path: unused_ip.txt
+
+
+
   register_in_pfsense:
     runs-on: self-hosted
     needs: find_unused_ip
     steps:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
+
+#      - name: Download VM Outputs and IP Artifacts
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: vm-outputs
+#        continue-on-error: true
+        
+      - name: Download Unused IP Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: unused-ip
+        continue-on-error: true
 
       - name: Display VM details
         run: |
@@ -101,6 +131,24 @@ jobs:
           echo "Memory: $memory MB"
           echo "CPUs: $cpus"
           echo "Disk Size: $disk_size GB"
+
+
+#      - name: Display downloaded unused_ip.txt
+#        run: |
+#          echo "Displaying contents of unused_ip.txt:"
+#          cat unused_ip.txt
+
+#      - name: Load VM Outputs from File
+#        run: |
+#          set -a  # Automatyczne eksportowanie zmiennych
+#          source vm_outputs.txt
+#          set +a  # Przestań eksportować zmienne
+#          echo "MAC Address: $vm_mac_address"
+#          echo "VM Name: $new_vm_name"
+#          echo "Template Name: $template_name"
+#          echo "Memory: $memory MB"
+#          echo "CPUs: $cpus"
+#          echo "Disk Size: $disk_size GB"
 
       - name: Register IP in pfSense
         run: |
