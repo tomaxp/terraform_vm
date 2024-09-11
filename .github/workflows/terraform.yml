@@ -38,6 +38,12 @@ jobs:
     runs-on: self-hosted
     needs: deploy
     steps:
+      - name: Setup Python virtual environment
+        run: |
+         python3 -m venv venv
+          source venv/bin/activate
+          pip install requests beautifulsoup4 ipaddress  
+            
       - name: Checkout repozytorium
         uses: actions/checkout@v2
 
