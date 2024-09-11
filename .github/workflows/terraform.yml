@@ -34,15 +34,14 @@ jobs:
           -auto-approve \
           -lock=false
 
-      - name: Capture Terraform Outputs and Save to File
+      - name: Capture Terraform Outputs and Save to Environment Files
         run: |
-          echo "Fetching Terraform Outputs..."
-          echo "cpus=$(terraform output -raw cpus)" > vm_outputs.txt
-          echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
-          echo "memory=$(terraform output -raw memory)" >> vm_outputs.txt
-          echo "new_vm_name=$(terraform output -raw new_vm_name)" >> vm_outputs.txt
-          echo "template_name=$(terraform output -raw template_name)" >> vm_outputs.txt
-          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> vm_outputs.txt
+          echo "cpus=$(terraform output -raw cpus)" >> $GITHUB_ENV
+          echo "disk_size=$(terraform output -raw disk_size)" >> $GITHUB_ENV
+          echo "memory=$(terraform output -raw memory)" >> $GITHUB_ENV
+          echo "new_vm_name=$(terraform output -raw new_vm_name)" >> $GITHUB_ENV
+          echo "template_name=$(terraform output -raw template_name)" >> $GITHUB_ENV
+          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> $GITHUB_ENV
 
       - name: Display contents of vm_outputs.txt
         run: |
@@ -113,10 +112,15 @@ jobs:
           name: unused-ip
         continue-on-error: true
 
-      - name: Display downloaded vm_outputs.txt
+      - name: Display VM details
         run: |
-          echo "Displaying contents of vm_outputs.txt:"
-          cat vm_outputs.txt
+          echo "MAC Address: $vm_mac_address"
+          echo "VM Name: $new_vm_name"
+          echo "Template Name: $template_name"
+          echo "Memory: $memory MB"
+          echo "CPUs: $cpus"
+          echo "Disk Size: $disk_size GB"
+
 
       - name: Display downloaded unused_ip.txt
         run: |
