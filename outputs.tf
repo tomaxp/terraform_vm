@@ -7,19 +7,19 @@ output "vm_mac_address" {
 }
 
 output "new_vm_name" {
-  value = var.new_vm_name
+  value = xenserver_vm.new_vm_without_disk[0].name_label
 }
 
 output "template_name" {
-  value = var.template_name
+  value = xenserver_vm.new_vm_without_disk[0].template_name
 }
 
 output "memory" {
-  value = var.memory
+  value = xenserver_vm.new_vm_without_disk[0].static_mem_max
 }
 
 output "cpus" {
-  value = var.cpus
+  value = xenserver_vm.new_vm_without_disk[0].vcpus
 }
 
 output "disk_size" {
