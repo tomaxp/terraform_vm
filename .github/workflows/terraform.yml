@@ -22,13 +22,30 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Terraform Apply
+        run: |
+          terraform apply \
+          -var=host="${{ secrets.XEN_URL }}" \
+          -var=username="${{ secrets.XEN_USERNAME }}" \
+          -var=password='${{ secrets.XEN_PASSWORD }}' \
+          -var-file="vars.tfvars" \
+          -auto-approve \
+          -lock=false
+
+      - name: Save Terraform State
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-state
+          path: ./terraform.tfstate
+
       - name: Terraform Plan
         run: |
           terraform plan \
-          -var="host=${{ secrets.XEN_URL }}" \
-          -var="username=${{ secrets.XEN_USERNAME }}" \
-          -var="password=${{ secrets.XEN_PASSWORD }}" \
+          -var=host="${{ secrets.XEN_URL }}" \
+          -var=username="${{ secrets.XEN_USERNAME }}" \
+          -var=password='${{ secrets.XEN_PASSWORD }}' \
           -var-file="vars.tfvars" \
+          -lock=false \
           -out=tfplan
 
       - name: Save Terraform Plan Artifact
@@ -36,19 +53,3 @@ jobs:
         with:
           name: terraform-plan
           path: ./tfplan
-
-      - name: Terraform Apply
-        if: github.event_name == 'push'
-        run: |
-          terraform apply \
-          -var="host=${{ secrets.XEN_URL }}" \
-          -var="username=${{ secrets.XEN_USERNAME }}" \
-          -var="password=${{ secrets.XEN_PASSWORD }}" \
-          -var-file="vars.tfvars" \
-          -auto-approve
-
-      - name: Save Terraform State
-        uses: actions/upload-artifact@v3
-        with:
-          name: terraform-state
-          path: ./terraform.tfstate
