@@ -34,43 +34,24 @@ jobs:
           -auto-approve \
           -lock=false
 
-      - name: Capture Terraform Outputs
+      - name: Capture Terraform Outputs and Save to File
         id: outputs
         run: |
           echo "Fetching Terraform Outputs..."
           terraform output
-          vm_mac_address=$(terraform output -raw vm_mac_address | tr -d '\r\n')
-          echo "Captured MAC Address: $vm_mac_address"
-          echo "vm_mac_address=$vm_mac_address" >> $GITHUB_ENV
+          
+          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> vm_outputs.txt
+          echo "new_vm_name=$(terraform output -raw new_vm_name)" >> vm_outputs.txt
+          echo "template_name=$(terraform output -raw template_name)" >> vm_outputs.txt
+          echo "memory=$(terraform output -raw memory)" >> vm_outputs.txt
+          echo "cpus=$(terraform output -raw cpus)" >> vm_outputs.txt
+          echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
 
-          new_vm_name=$(terraform output -raw new_vm_name | tr -d '\r\n')
-          echo "Captured VM Name: $new_vm_name"
-          echo "new_vm_name=$new_vm_name" >> $GITHUB_ENV
-
-          template_name=$(terraform output -raw template_name | tr -d '\r\n')
-          echo "Captured Template Name: $template_name"
-          echo "template_name=$template_name" >> $GITHUB_ENV
-
-          memory=$(terraform output -raw memory | tr -d '\r\n')
-          echo "Captured Memory: $memory"
-          echo "memory=$memory" >> $GITHUB_ENV
-
-          cpus=$(terraform output -raw cpus | tr -d '\r\n')
-          echo "Captured CPUs: $cpus"
-          echo "cpus=$cpus" >> $GITHUB_ENV
-
-          disk_size=$(terraform output -raw disk_size | tr -d '\r\n')
-          echo "Captured Disk Size: $disk_size"
-          echo "disk_size=$disk_size" >> $GITHUB_ENV
-
-      - name: List Environment Variables After Terraform Outputs
-        run: |
-          echo "VM MAC Address: ${{ env.vm_mac_address }}"
-          echo "VM Name: ${{ env.new_vm_name }}"
-          echo "Template Name: ${{ env.template_name }}"
-          echo "Memory: ${{ env.memory }} MB"
-          echo "CPUs: ${{ env.cpus }}"
-          echo "Disk Size: ${{ env.disk_size }} GB"
+      - name: Upload Terraform Outputs as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: vm-outputs
+          path: vm_outputs.txt
 
   find_unused_ip:
     runs-on: self-hosted
@@ -78,9 +59,6 @@ jobs:
     steps:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
-
-      - name: List files in repository after checkout
-        run: ls -la
 
       - name: Setup Python virtual environment and install dependencies
         run: |
@@ -116,21 +94,20 @@ jobs:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
 
-      - name: Setup Python virtual environment and install dependencies
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install requests beautifulsoup4 ipaddress
+      - name: Download VM Outputs Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: vm-outputs
 
-      - name: Debug environment variables
+      - name: Load VM Outputs from File
         run: |
-          echo "MAC Address: ${{ env.vm_mac_address }}"
-          echo "IP Address: ${{ steps.parse_ip.outputs.ip }}"
-          echo "VM Name: ${{ env.new_vm_name }}"
-          echo "Template Name: ${{ env.template_name }}"
-          echo "CPUs: ${{ env.cpus }}"
-          echo "Memory: ${{ env.memory }}"
-          echo "Disk Size: ${{ env.disk_size }}"
+          source vm_outputs.txt
+          echo "MAC Address: $vm_mac_address"
+          echo "VM Name: $new_vm_name"
+          echo "Template Name: $template_name"
+          echo "Memory: $memory MB"
+          echo "CPUs: $cpus"
+          echo "Disk Size: $disk_size GB"
 
       - name: Register IP in pfSense
         run: |
@@ -138,13 +115,13 @@ jobs:
           python3 ./.scripts/register_in_pfsense.py \
           ${{ secrets.PFSENSE_USERNAME }} \
           ${{ secrets.PFSENSE_PASSWORD }} \
-          ${{ env.vm_mac_address }} \
+          $vm_mac_address \
           ${{ steps.parse_ip.outputs.ip }} \
-          ${{ env.new_vm_name }} \
-          ${{ env.template_name }} \
-          ${{ env.cpus }} \
-          ${{ env.memory }} \
-          ${{ env.disk_size }}
+          $new_vm_name \
+          $template_name \
+          $cpus \
+          $memory \
+          $disk_size
 
   summary:
     runs-on: self-hosted
@@ -156,9 +133,9 @@ jobs:
       - name: Display VM summary
         run: |
           echo "VM Details:"
-          echo "Hostname: ${{ env.new_vm_name }}"
+          echo "Hostname: $new_vm_name"
           echo "IP Address: ${{ steps.parse_ip.outputs.ip }}"
-          echo "MAC Address: ${{ env.vm_mac_address }}"
-          echo "CPU(s): ${{ env.cpus }}"
-          echo "Memory: ${{ env.memory }} MB"
-          echo "Disk Size: ${{ env.disk_size }} GB"
+          echo "MAC Address: $vm_mac_address"
+          echo "CPU(s): $cpus"
+          echo "Memory: $memory MB"
+          echo "Disk Size: $disk_size GB"
