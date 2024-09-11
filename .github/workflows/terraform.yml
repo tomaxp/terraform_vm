@@ -44,16 +44,16 @@ jobs:
           echo "vm_mac_address=$(terraform output -raw vm_mac_address | grep -v '::debug::')" >> $GITHUB_ENV
 
 
-      - name: Display contents of vm_outputs.txt
-        run: |
-          echo "Displaying contents of vm_outputs.txt:"
-          cat vm_outputs.txt
+#      - name: Display contents of vm_outputs.txt
+#        run: |
+#          echo "Displaying contents of vm_outputs.txt:"
+#          cat vm_outputs.txt
 
-      - name: Upload VM Outputs as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: vm-outputs
-          path: vm_outputs.txt
+#      - name: Upload VM Outputs as Artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: vm-outputs
+#          path: vm_outputs.txt
 
   find_unused_ip:
     runs-on: self-hosted
