@@ -35,7 +35,6 @@ jobs:
           -lock=false
 
       - name: Capture Terraform Outputs and Save to File
-        id: outputs
         run: |
           echo "Fetching Terraform Outputs..."
           echo "vm_mac_address=$(terraform output -raw vm_mac_address)" > vm_outputs.txt
@@ -45,14 +44,11 @@ jobs:
           echo "cpus=$(terraform output -raw cpus)" >> vm_outputs.txt
           echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
 
-      - name: List Environment Variables After Terraform Outputs
-        run: |
-          echo "VM MAC Address: ${{ env.vm_mac_address }}"
-          echo "VM Name: ${{ env.new_vm_name }}"
-          echo "Template Name: ${{ env.template_name }}"
-          echo "Memory: ${{ env.memory }} MB"
-          echo "CPUs: ${{ env.cpus }}"
-          echo "Disk Size: ${{ env.disk_size }} GB"
+      - name: Upload VM Outputs as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: vm-outputs
+          path: vm_outputs.txt
 
   find_unused_ip:
     runs-on: self-hosted
@@ -87,9 +83,11 @@ jobs:
           echo "First available IP: $AVAILABLE_IP"
           echo "::set-output name=ip::$AVAILABLE_IP"
 
-      - name: List IP from Parsing
-        run: |
-          echo "Parsed IP: ${{ steps.parse_ip.outputs.ip }}"
+      - name: Upload IP as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: unused-ip
+          path: unused_ip.txt
 
   register_in_pfsense:
     runs-on: self-hosted
@@ -98,22 +96,33 @@ jobs:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
 
-      - name: Setup Python virtual environment and install dependencies
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install requests beautifulsoup4 ipaddress
+      - name: Download VM Outputs and IP Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vm-outputs
+        continue-on-error: true
+        
+      - name: Download Unused IP Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: unused-ip
+        continue-on-error: true
 
-      - name: Display vm_outputs.txt for Debugging
+      - name: Display downloaded vm_outputs.txt
         run: |
-          echo "Displaying contents of vm_outputs.txt..."
+          echo "Displaying contents of vm_outputs.txt:"
           cat vm_outputs.txt
+
+      - name: Display downloaded unused_ip.txt
+        run: |
+          echo "Displaying contents of unused_ip.txt:"
+          cat unused_ip.txt
 
       - name: Load VM Outputs from File
         run: |
-          set -a  # automatycznie eksportuj zmienne
+          set -a  # Automatyczne eksportowanie zmiennych
           source vm_outputs.txt
-          set +a  # przestań eksportować zmienne
+          set +a  # Przestań eksportować zmienne
           echo "MAC Address: $vm_mac_address"
           echo "VM Name: $new_vm_name"
           echo "Template Name: $template_name"
@@ -128,7 +137,7 @@ jobs:
           ${{ secrets.PFSENSE_USERNAME }} \
           ${{ secrets.PFSENSE_PASSWORD }} \
           $vm_mac_address \
-          ${{ steps.parse_ip.outputs.ip }} \
+          $(cat unused_ip.txt) \
           $new_vm_name \
           $template_name \
           $cpus \
@@ -146,7 +155,7 @@ jobs:
         run: |
           echo "VM Details:"
           echo "Hostname: $new_vm_name"
-          echo "IP Address: ${{ steps.parse_ip.outputs.ip }}"
+          echo "IP Address: $(cat unused_ip.txt)"
           echo "MAC Address: $vm_mac_address"
           echo "CPU(s): $cpus"
           echo "Memory: $memory MB"
