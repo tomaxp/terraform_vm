@@ -38,21 +38,21 @@ jobs:
         id: outputs
         run: |
           echo "Fetching Terraform Outputs..."
-          terraform output
-          
-          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> vm_outputs.txt
+          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" > vm_outputs.txt
           echo "new_vm_name=$(terraform output -raw new_vm_name)" >> vm_outputs.txt
           echo "template_name=$(terraform output -raw template_name)" >> vm_outputs.txt
           echo "memory=$(terraform output -raw memory)" >> vm_outputs.txt
           echo "cpus=$(terraform output -raw cpus)" >> vm_outputs.txt
           echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
 
-
-      - name: Upload Terraform Outputs as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: vm-outputs
-          path: vm_outputs.txt
+      - name: List Environment Variables After Terraform Outputs
+        run: |
+          echo "VM MAC Address: ${{ env.vm_mac_address }}"
+          echo "VM Name: ${{ env.new_vm_name }}"
+          echo "Template Name: ${{ env.template_name }}"
+          echo "Memory: ${{ env.memory }} MB"
+          echo "CPUs: ${{ env.cpus }}"
+          echo "Disk Size: ${{ env.disk_size }} GB"
 
   find_unused_ip:
     runs-on: self-hosted
@@ -60,6 +60,9 @@ jobs:
     steps:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
+
+      - name: List files in repository after checkout
+        run: ls -la
 
       - name: Setup Python virtual environment and install dependencies
         run: |
@@ -95,10 +98,16 @@ jobs:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
 
-      - name: Download VM Outputs Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: vm-outputs
+      - name: Setup Python virtual environment and install dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install requests beautifulsoup4 ipaddress
+
+      - name: Display vm_outputs.txt for Debugging
+        run: |
+          echo "Displaying contents of vm_outputs.txt..."
+          cat vm_outputs.txt
 
       - name: Load VM Outputs from File
         run: |
