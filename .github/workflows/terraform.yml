@@ -34,30 +34,21 @@ jobs:
           -auto-approve \
           -lock=false
 
-      - name: Capture Terraform Outputs and Save to Environment Files
+      - name: Capture Terraform Outputs and Save to File
         run: |
-          cpus=$(terraform output -raw cpus)
-          echo "cpus=$cpus" >> $GITHUB_ENV
-          disk_size=$(terraform output -raw disk_size)
-          echo "disk_size=$disk_size" >> $GITHUB_ENV
-          memory=$(terraform output -raw memory)
-          echo "memory=$memory" >> $GITHUB_ENV
-          new_vm_name=$(terraform output -raw new_vm_name)
-          echo "new_vm_name=$new_vm_name" >> $GITHUB_ENV
-          template_name=$(terraform output -raw template_name)
-          echo "template_name=$template_name" >> $GITHUB_ENV
-          vm_mac_address=$(terraform output -raw vm_mac_address)
-          echo "vm_mac_address=$vm_mac_address" >> $GITHUB_ENV
+          echo "Fetching Terraform Outputs..."
+          echo "cpus=$(terraform output -raw cpus)" > vm_outputs.txt
+          echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
+          echo "memory=$(terraform output -raw memory)" >> vm_outputs.txt
+          echo "new_vm_name=$(terraform output -raw new_vm_name)" >> vm_outputs.txt
+          echo "template_name=$(terraform output -raw template_name)" >> vm_outputs.txt
+          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> vm_outputs.txt
 
-          # Debugging output to verify values
-          echo "Debugging Terraform outputs:"
-          echo "CPUs: $cpus"
-          echo "Disk Size: $disk_size"
-          echo "Memory: $memory MB"
-          echo "VM Name: $new_vm_name"
-          echo "Template Name: $template_name"
-          echo "MAC Address: $vm_mac_address"
-      
+      - name: Upload VM Outputs as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: vm-outputs
+          path: vm_outputs.txt
 
   find_unused_ip:
     runs-on: self-hosted
@@ -65,9 +56,6 @@ jobs:
     steps:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
-
-      - name: List files in repository after checkout
-        run: ls -la
 
       - name: Setup Python virtual environment and install dependencies
         run: |
@@ -85,12 +73,11 @@ jobs:
           ${{ secrets.PFSENSE_USERNAME }} \
           ${{ secrets.PFSENSE_PASSWORD }} > unused_ip.txt
 
-      - name: Parse the first available IP and save to environment
-        id: parse_ip
-        run: |
-          AVAILABLE_IP=$(head -n 1 unused_ip.txt)
-          echo "First available IP: $AVAILABLE_IP"
-          echo "ip=$AVAILABLE_IP" >> $GITHUB_ENV
+      - name: Upload IP as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: unused-ip
+          path: unused_ip.txt
 
   register_in_pfsense:
     runs-on: self-hosted
@@ -99,8 +86,26 @@ jobs:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
 
+      - name: Download VM Outputs and IP Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: vm-outputs
+
+      - name: Download Unused IP Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: unused-ip
+
       - name: Display VM details
         run: |
+          echo "Displaying contents of vm_outputs.txt:"
+          cat vm_outputs.txt
+
+      - name: Load VM Outputs from File
+        run: |
+          set -a  # Automatyczne eksportowanie zmiennych
+          source vm_outputs.txt
+          set +a  # Przestań eksportować zmienne
           echo "MAC Address: $vm_mac_address"
           echo "VM Name: $new_vm_name"
           echo "Template Name: $template_name"
