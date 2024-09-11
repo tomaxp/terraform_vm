@@ -28,7 +28,14 @@ jobs:
           -var="host=${{ secrets.XEN_URL }}" \
           -var="username=${{ secrets.XEN_USERNAME }}" \
           -var="password=${{ secrets.XEN_PASSWORD }}" \
-          -var-file="vars.tfvars"
+          -var-file="vars.tfvars" \
+          -out=tfplan
+
+      - name: Save Terraform Plan Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-plan
+          path: ./tfplan
 
       - name: Terraform Apply
         if: github.event_name == 'push'
@@ -39,3 +46,9 @@ jobs:
           -var="password=${{ secrets.XEN_PASSWORD }}" \
           -var-file="vars.tfvars" \
           -auto-approve
+
+      - name: Save Terraform State
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-state
+          path: ./terraform.tfstate
