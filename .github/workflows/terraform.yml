@@ -40,23 +40,37 @@ jobs:
           echo "Fetching Terraform Outputs..."
           terraform output
           vm_mac_address=$(terraform output -raw vm_mac_address | tr -d '\r\n')
-          vm_mac_address=${vm_mac_address//:/-}  # Zamiana dwukropków na myślniki
+          echo "Captured MAC Address: $vm_mac_address"
           echo "vm_mac_address=$vm_mac_address" >> $GITHUB_ENV
 
           new_vm_name=$(terraform output -raw new_vm_name | tr -d '\r\n')
+          echo "Captured VM Name: $new_vm_name"
           echo "new_vm_name=$new_vm_name" >> $GITHUB_ENV
 
           template_name=$(terraform output -raw template_name | tr -d '\r\n')
+          echo "Captured Template Name: $template_name"
           echo "template_name=$template_name" >> $GITHUB_ENV
 
           memory=$(terraform output -raw memory | tr -d '\r\n')
+          echo "Captured Memory: $memory"
           echo "memory=$memory" >> $GITHUB_ENV
 
           cpus=$(terraform output -raw cpus | tr -d '\r\n')
+          echo "Captured CPUs: $cpus"
           echo "cpus=$cpus" >> $GITHUB_ENV
 
           disk_size=$(terraform output -raw disk_size | tr -d '\r\n')
+          echo "Captured Disk Size: $disk_size"
           echo "disk_size=$disk_size" >> $GITHUB_ENV
+
+      - name: List Environment Variables After Terraform Outputs
+        run: |
+          echo "VM MAC Address: ${{ env.vm_mac_address }}"
+          echo "VM Name: ${{ env.new_vm_name }}"
+          echo "Template Name: ${{ env.template_name }}"
+          echo "Memory: ${{ env.memory }} MB"
+          echo "CPUs: ${{ env.cpus }}"
+          echo "Disk Size: ${{ env.disk_size }} GB"
 
   find_unused_ip:
     runs-on: self-hosted
@@ -90,6 +104,10 @@ jobs:
           AVAILABLE_IP=$(head -n 1 unused_ip.txt)
           echo "First available IP: $AVAILABLE_IP"
           echo "::set-output name=ip::$AVAILABLE_IP"
+
+      - name: List IP from Parsing
+        run: |
+          echo "Parsed IP: ${{ steps.parse_ip.outputs.ip }}"
 
   register_in_pfsense:
     runs-on: self-hosted
