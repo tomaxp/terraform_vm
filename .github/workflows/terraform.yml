@@ -135,59 +135,7 @@ jobs:
     needs: register_in_pfsense
     steps:
       - name: Checkout repozytorium
-        uses: actions/checkout@v2też wam zrywa VPNco chwilename: Terraform and pfSense Automation
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-
-jobs:
-  deploy:
-    runs-on: self-hosted
-    steps:
-      - name: Checkout repozytorium
         uses: actions/checkout@v2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.5.0
-          terraform_wrapper: false  # Wyłączenie opakowania
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Apply
-        run: |
-          terraform apply \
-          -var=host="${{ secrets.XEN_URL }}" \
-          -var=username="${{ secrets.XEN_USERNAME }}" \
-          -var=password='${{ secrets.XEN_PASSWORD }}' \
-          -var-file="vars.tfvars" \
-          -auto-approve \
-          -lock=false
-
-      - name: Capture Terraform Outputs and Save to File
-        run: |
-          echo "Fetching Terraform Outputs..."
-          echo "cpus=$(terraform output -raw cpus)" > vm_outputs.txt
-          echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
-          echo "memory=$(terraform output -raw memory)" >> vm_outputs.txt
-          echo "new_vm_name=$(terraform output -raw new_vm_name)" >> vm_outputs.txt
-          echo "template_name=$(terraform output -raw template_name)" >> vm_outputs.txt
-          echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> vm_outputs.txt
-
-      - name: Display VM Outputs for Debugging
-        run: cat vm_outputs.txt
-
-      - name: Upload VM Outputs as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: vm-outputs
-          path: vm_outputs.txt
-
 
       - name: Display VM summary
         run: |
