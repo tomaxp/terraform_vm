@@ -189,7 +189,7 @@ jobs:
       - name: Start VM using XenAPI
         run: |
           source venv/bin/activate
-          python start_vm.py "${{ secrets.XEN_URL }}" "${{ secrets.XEN_USERNAME }}" "${{ secrets.XEN_PASSWORD }}" "${new_vm_name}"
+          python ./.scripts/start_vm.py "${{ secrets.XEN_URL }}" "${{ secrets.XEN_USERNAME }}" "${{ secrets.XEN_PASSWORD }}" "${new_vm_name}"
 
 
   summary:
