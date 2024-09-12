@@ -113,6 +113,9 @@ jobs:
       - name: Load VM Outputs from File
         run: |
           while IFS='=' read -r key value; do
+            # Usuwanie cudzysłowów wokół wartości, jeśli występują
+            value="${value%\"}"
+            value="${value#\"}"
             eval "$key=\"$value\""
           done < vm_outputs.txt
           echo "MAC Address: $vm_mac_address"
@@ -121,6 +124,7 @@ jobs:
           echo "Memory: $memory MB"
           echo "CPUs: $cpus"
           echo "Disk Size: $disk_size GB"
+
 
       - name: Debugging variables before calling register_in_pfsense
         run: |
