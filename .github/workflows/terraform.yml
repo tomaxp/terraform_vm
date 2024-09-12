@@ -152,13 +152,14 @@ jobs:
           python3 ./.scripts/register_in_pfsense.py \
           ${{ secrets.PFSENSE_USERNAME }} \
           ${{ secrets.PFSENSE_PASSWORD }} \
-          $vm_mac_address \
-          $(head -n 1 unused_ip.txt) \
-          $new_vm_name \
-          $template_name \
-          $cpus \
-          $memory \
-          $disk_size
+          "${vm_mac_address//\"/}" \
+          "$(head -n 1 unused_ip.txt)" \
+          "${new_vm_name//\"/}" \
+          "${template_name//\"/}" \
+          "${cpus//\"/}" \
+          "${memory//\"/}" \
+          "${disk_size//\"/}"
+
 
   summary:
     runs-on: self-hosted
