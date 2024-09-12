@@ -116,7 +116,7 @@ jobs:
             # Usuwanie cudzysłowów wokół wartości, jeśli występują
             value="${value%\"}"
             value="${value#\"}"
-            eval "$key=\"$value\""
+            echo "$key=\"$value\"" >> $GITHUB_ENV
           done < vm_outputs.txt
           echo "MAC Address: $vm_mac_address"
           echo "VM Name: $new_vm_name"
@@ -124,7 +124,17 @@ jobs:
           echo "Memory: $memory MB"
           echo "CPUs: $cpus"
           echo "Disk Size: $disk_size GB"
-
+      # - name: Load VM Outputs from File
+      #   run: |
+      #     while IFS='=' read -r key value; do
+      #       eval "$key=\"$value\""
+      #     done < vm_outputs.txt
+      #     echo "MAC Address: $vm_mac_address"
+      #     echo "VM Name: $new_vm_name"
+      #     echo "Template Name: $template_name"
+      #     echo "Memory: $memory MB"
+      #     echo "CPUs: $cpus"
+      #      echo "Disk Size: $disk_size GB"
 
       - name: Debugging variables before calling register_in_pfsense
         run: |
