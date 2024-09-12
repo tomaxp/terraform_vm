@@ -178,6 +178,21 @@ jobs:
         with:
           name: unused-ip
 
+      - name: Load VM Outputs from File
+        run: |
+          while IFS='=' read -r key value; do
+            # Usuwanie cudzysłowów wokół wartości, jeśli występują
+            value="${value%\"}"
+            value="${value#\"}"
+            echo "$key=\"$value\"" >> $GITHUB_ENV
+          done < vm_outputs.txt
+          echo "MAC Address: $vm_mac_address"
+          echo "VM Name: $new_vm_name"
+          echo "Template Name: $template_name"
+          echo "Memory: $memory MB"
+          echo "CPUs: $cpus"
+          echo "Disk Size: $disk_size GB"
+
       - name: Display VM summary
         run: |
           echo "MAC Address: $vm_mac_address"
