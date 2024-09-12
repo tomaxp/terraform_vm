@@ -80,68 +80,68 @@ jobs:
           name: unused-ip
           path: unused_ip.txt
 
-  register_in_pfsense:
-    runs-on: self-hosted
-    needs: find_unused_ip
-    steps:
-      - name: Checkout repozytorium
-        uses: actions/checkout@v2
+  # register_in_pfsense:
+  #   runs-on: self-hosted
+  #   needs: find_unused_ip
+  #   steps:
+  #     - name: Checkout repozytorium
+  #       uses: actions/checkout@v2
 
-      - name: Download VM Outputs and IP Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: vm-outputs
+  #     - name: Download VM Outputs and IP Artifacts
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: vm-outputs
 
-      - name: Download Unused IP Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: unused-ip
+  #     - name: Download Unused IP Artifact
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: unused-ip
 
-      - name: Display VM details
-        run: |
-          echo "Displaying contents of vm_outputs.txt:"
-          cat vm_outputs.txt
+  #     - name: Display VM details
+  #       run: |
+  #         echo "Displaying contents of vm_outputs.txt:"
+  #         cat vm_outputs.txt
 
-      - name: Load VM Outputs from File
-        run: |
-          set -a  # Automatyczne eksportowanie zmiennych
-          source vm_outputs.txt
-          set +a  # Przestań eksportować zmienne
-          echo "MAC Address: $vm_mac_address"
-          echo "VM Name: $new_vm_name"
-          echo "Template Name: $template_name"
-          echo "Memory: $memory MB"
-          echo "CPUs: $cpus"
-          echo "Disk Size: $disk_size GB"
+  #     - name: Load VM Outputs from File
+  #       run: |
+  #         set -a  # Automatyczne eksportowanie zmiennych
+  #         source vm_outputs.txt
+  #         set +a  # Przestań eksportować zmienne
+  #         echo "MAC Address: $vm_mac_address"
+  #         echo "VM Name: $new_vm_name"
+  #         echo "Template Name: $template_name"
+  #         echo "Memory: $memory MB"
+  #         echo "CPUs: $cpus"
+  #         echo "Disk Size: $disk_size GB"
 
 
-      - name: Register IP in pfSense
-        run: |
-          source venv/bin/activate
-          python3 ./.scripts/register_in_pfsense.py \
-          ${{ secrets.PFSENSE_USERNAME }} \
-          ${{ secrets.PFSENSE_PASSWORD }} \
-          $vm_mac_address \
-          $(head -n 1 unused_ip.txt) \
-          $new_vm_name \
-          $template_name \
-          $cpus \
-          $memory \
-          $disk_size
+  #     - name: Register IP in pfSense
+  #       run: |
+  #         source venv/bin/activate
+  #         python3 ./.scripts/register_in_pfsense.py \
+  #         ${{ secrets.PFSENSE_USERNAME }} \
+  #         ${{ secrets.PFSENSE_PASSWORD }} \
+  #         $vm_mac_address \
+  #         $(head -n 1 unused_ip.txt) \
+  #         $new_vm_name \
+  #         $template_name \
+  #         $cpus \
+  #         $memory \
+  #         $disk_size
 
-  summary:
-    runs-on: self-hosted
-    needs: register_in_pfsense
-    steps:
-      - name: Checkout repozytorium
-        uses: actions/checkout@v2
+  # summary:
+  #   runs-on: self-hosted
+  #   needs: register_in_pfsense
+  #   steps:
+  #     - name: Checkout repozytorium
+  #       uses: actions/checkout@v2
 
-      - name: Display VM summary
-        run: |
-          echo "VM Details:"
-          echo "Hostname: $new_vm_name"
-          echo "IP Address: $(cat unused_ip.txt)"
-          echo "MAC Address: $vm_mac_address"
-          echo "CPU(s): $cpus"
-          echo "Memory: $memory MB"
-          echo "Disk Size: $disk_size GB"
+  #     - name: Display VM summary
+  #       run: |
+  #         echo "VM Details:"
+  #         echo "Hostname: $new_vm_name"
+  #         echo "IP Address: $(cat unused_ip.txt)"
+  #         echo "MAC Address: $vm_mac_address"
+  #         echo "CPU(s): $cpus"
+  #         echo "Memory: $memory MB"
+  #         echo "Disk Size: $disk_size GB"
