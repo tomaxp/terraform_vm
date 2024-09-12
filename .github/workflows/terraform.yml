@@ -160,6 +160,37 @@ jobs:
           "${memory//\"/}" \
           "${disk_size//\"/}"
 
+  start_vm:
+    runs-on: self-hosted
+    needs: register_in_pfsense  # Możesz to zmienić w zależności od tego, kiedy chcesz uruchomić ten job
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python virtual environment and install dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install XenAPI
+
+      - name: Download VM Outputs and IP Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vm-outputs
+
+      - name: Load VM Outputs from File
+        run: |
+          while IFS='=' read -r key value; do
+            value="${value%\"}"
+            value="${value#\"}"
+            echo "$key=\"$value\"" >> $GITHUB_ENV
+          done < vm_outputs.txt
+
+      - name: Start VM using XenAPI
+        run: |
+          source venv/bin/activate
+          python start_vm.py ""${{ secrets.XEN_URL }}" "${{ secrets.XEN_USERNAME }}" "${{ secrets.XEN_PASSWORD }}" "${new_vm_name}"
+
 
   summary:
     runs-on: self-hosted
