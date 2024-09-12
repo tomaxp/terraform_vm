@@ -90,12 +90,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download VM Outputs and IP Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: vm-outputs
 
       - name: Download Unused IP Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: unused-ip
 
