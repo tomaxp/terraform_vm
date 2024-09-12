@@ -122,6 +122,16 @@ jobs:
           echo "CPUs: $cpus"
           echo "Disk Size: $disk_size GB"
 
+      - name: Debugging variables before calling register_in_pfsense
+        run: |
+          echo "MAC Address: $vm_mac_address"
+          echo "IP Address: $(head -n 1 unused_ip.txt)"
+          echo "VM Name: $new_vm_name"
+          echo "Template Name: $template_name"
+          echo "CPUs: $cpus"
+          echo "Memory: $memory MB"
+          echo "Disk Size: $disk_size GB"
+          
       - name: Register IP in pfSense
         run: |
           source venv/bin/activate
