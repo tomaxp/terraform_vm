@@ -1,5 +1,5 @@
 new_vm_name         = "OMNI-Github-runner"
-template_name       = "Ubuntu 20.04 Minimal ONITO"
+template_name       = "Rocky 8 Minimal ONITO"
 memory              = 4000000000  # w B (4GB)
 cpus                = 4
 network_uuid        = "a9151f88-4518-eca7-2f27-1e521b3b6c58"
