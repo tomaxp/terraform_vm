@@ -186,12 +186,17 @@ jobs:
             echo "$key=\"$value\"" >> $GITHUB_ENV
           done < vm_outputs.txt
 
+      # - name: Start VM using XenAPI
+      #   run: |
+      #     echo "Running: python ./.scripts/start_vm.py \"${{ secrets.XEN_URL }}\" \"${{ secrets.XEN_USERNAME }}\" \"***\" \"${new_vm_name}\""
+      #     source venv/bin/activate
+      #     python ./.scripts/start_vm.py "${{ secrets.XEN_URL }}" "${{ secrets.XEN_USERNAME }}" '${{ secrets.XEN_PASSWORD }}' "${new_vm_name}"
+
       - name: Start VM using XenAPI
         run: |
           echo "Running: python ./.scripts/start_vm.py \"${{ secrets.XEN_URL }}\" \"${{ secrets.XEN_USERNAME }}\" \"***\" \"${new_vm_name}\""
           source venv/bin/activate
-          python ./.scripts/start_vm.py "${{ secrets.XEN_URL }}" "${{ secrets.XEN_USERNAME }}" '${{ secrets.XEN_PASSWORD }}' "${new_vm_name}"
-
+          python ./.scripts/start_vm.py "${{ secrets.XEN_URL }}" "${{ secrets.XEN_USERNAME }}" '${{ secrets.XEN_PASSWORD }}' "${new_vm_name//\"/}"
 
   summary:
     runs-on: self-hosted
