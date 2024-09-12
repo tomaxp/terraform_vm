@@ -6,4 +6,3 @@ network_uuid        = "a9151f88-4518-eca7-2f27-1e521b3b6c58"
 sr_uuid             = "3b96575f-b7d3-ee4a-494e-03389df9cd3e"
 add_additional_disk = true
 additional_disk_size = 31457280  # 10GB w bajtach
-
