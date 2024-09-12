@@ -168,12 +168,22 @@ jobs:
       - name: Checkout repozytorium
         uses: actions/checkout@v2
 
+      - name: Download VM Outputs and IP Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vm-outputs
+
+      - name: Download Unused IP Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: unused-ip
+
       - name: Display VM summary
         run: |
-          echo "VM Details:"
-          echo "Hostname: $new_vm_name"
-          echo "IP Address: $(cat unused_ip.txt)"
           echo "MAC Address: $vm_mac_address"
-          echo "CPU(s): $cpus"
+          echo "IP Address: $(head -n 1 unused_ip.txt)"
+          echo "VM Name: $new_vm_name"
+          echo "Template Name: $template_name"
+          echo "CPUs: $cpus"
           echo "Memory: $memory MB"
           echo "Disk Size: $disk_size GB"
