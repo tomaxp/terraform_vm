@@ -46,7 +46,7 @@ jobs:
 
 
       - name: Upload VM Outputs as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: vm-outputs
           path: vm_outputs.txt
@@ -75,7 +75,7 @@ jobs:
           ${{ secrets.PFSENSE_PASSWORD }} > unused_ip.txt
 
       - name: Upload IP as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: unused-ip
           path: unused_ip.txt
