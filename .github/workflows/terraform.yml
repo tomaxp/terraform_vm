@@ -112,9 +112,9 @@ jobs:
 
       - name: Load VM Outputs from File
         run: |
-          set -a  # Automatyczne eksportowanie zmiennych
-          source vm_outputs.txt
-          set +a  # Przestań eksportować zmienne
+          while IFS='=' read -r key value; do
+            eval "$key=\"$value\""
+          done < vm_outputs.txt
           echo "MAC Address: $vm_mac_address"
           echo "VM Name: $new_vm_name"
           echo "Template Name: $template_name"
@@ -131,7 +131,7 @@ jobs:
           echo "CPUs: $cpus"
           echo "Memory: $memory MB"
           echo "Disk Size: $disk_size GB"
-          
+
       - name: Register IP in pfSense
         run: |
           source venv/bin/activate
