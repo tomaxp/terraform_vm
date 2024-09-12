@@ -38,8 +38,8 @@ jobs:
           echo "cpus=$(terraform output -raw cpus)" > vm_outputs.txt
           echo "disk_size=$(terraform output -raw disk_size)" >> vm_outputs.txt
           echo "memory=$(terraform output -raw memory)" >> vm_outputs.txt
-          echo "new_vm_name=$(terraform output -raw new_vm_name)" >> vm_outputs.txt
-          echo "template_name=$(terraform output -raw template_name)" >> vm_outputs.txt
+          echo "new_vm_name=\"$(terraform output -raw new_vm_name)\"" >> vm_outputs.txt
+          echo "template_name=\"$(terraform output -raw template_name)\"" >> vm_outputs.txt
           echo "vm_mac_address=$(terraform output -raw vm_mac_address)" >> vm_outputs.txt
 
       - name: Display VM Outputs for Debugging
